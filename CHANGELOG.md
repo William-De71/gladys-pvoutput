@@ -5,7 +5,7 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions
 follow [Semantic Versioning](https://semver.org/). This file is generated at
 each release from the Conventional Commits: do not edit it by hand.
 
-## [0.1.0] - unreleased
+## [0.1.0] - 2026-10-23
 
 ### Added
 
@@ -16,3 +16,5 @@ each release from the Conventional Commits: do not edit it by hand.
 - **widgets:** today at a system (power now, energy of the day, consumption or export, yield, the curve of the day, last status, requests left) and its last 30 days (bars, month, best day, average, record yield, lifetime production)
 - **configuration:** a "Test the connection" button (name, size, status interval, timezone, requests left) and a "Diagnostic" button
 - **i18n:** English, French, German and Spanish for the manifest, the runtime texts, the documentation and the README
+
+[0.1.0]: https://github.com/William-De71/gladys-pvoutput/releases/tag/v0.1.0
