@@ -1,0 +1,431 @@
+{
+  "devices": {
+    "every_feature": {
+      "external_id": "ext:test-integration:system:12345",
+      "should_poll": false,
+      "params": ["PVOUTPUT_SYSTEM_ID"],
+      "features": [
+        {
+          "external_id": "ext:test-integration:system:12345:power",
+          "category": "energy-production-sensor",
+          "type": "power",
+          "unit": "watt",
+          "min": 0,
+          "max": 6300,
+          "read_only": true,
+          "has_feedback": false
+        },
+        {
+          "external_id": "ext:test-integration:system:12345:energy_today",
+          "category": "energy-production-sensor",
+          "type": "daily-production",
+          "unit": "kilowatt-hour",
+          "min": 0,
+          "max": 51,
+          "read_only": true,
+          "has_feedback": false
+        },
+        {
+          "external_id": "ext:test-integration:system:12345:lifetime_energy",
+          "category": "energy-production-sensor",
+          "type": "index",
+          "unit": "kilowatt-hour",
+          "min": 0,
+          "max": 100000000,
+          "read_only": true,
+          "has_feedback": false
+        },
+        {
+          "external_id": "ext:test-integration:system:12345:consumption_power",
+          "category": "energy-sensor",
+          "type": "power",
+          "unit": "watt",
+          "min": 0,
+          "max": 100000,
+          "read_only": true,
+          "has_feedback": false
+        },
+        {
+          "external_id": "ext:test-integration:system:12345:consumption_today",
+          "category": "energy-sensor",
+          "type": "index-today",
+          "unit": "kilowatt-hour",
+          "min": 0,
+          "max": 200,
+          "read_only": true,
+          "has_feedback": false
+        },
+        {
+          "external_id": "ext:test-integration:system:12345:temperature",
+          "category": "temperature-sensor",
+          "type": "probe",
+          "unit": "celsius",
+          "min": -100,
+          "max": 100,
+          "read_only": true,
+          "has_feedback": false
+        },
+        {
+          "external_id": "ext:test-integration:system:12345:voltage",
+          "category": "energy-sensor",
+          "type": "voltage",
+          "unit": "volt",
+          "min": 0,
+          "max": 1000,
+          "read_only": true,
+          "has_feedback": false
+        }
+      ]
+    },
+    "production_only": {
+      "external_id": "ext:test-integration:system:67890",
+      "should_poll": false,
+      "params": ["PVOUTPUT_SYSTEM_ID"],
+      "features": [
+        {
+          "external_id": "ext:test-integration:system:67890:power",
+          "category": "energy-production-sensor",
+          "type": "power",
+          "unit": "watt",
+          "min": 0,
+          "max": 100000,
+          "read_only": true,
+          "has_feedback": false
+        },
+        {
+          "external_id": "ext:test-integration:system:67890:energy_today",
+          "category": "energy-production-sensor",
+          "type": "daily-production",
+          "unit": "kilowatt-hour",
+          "min": 0,
+          "max": 1000,
+          "read_only": true,
+          "has_feedback": false
+        }
+      ]
+    }
+  },
+  "manifest": {
+    "config_schema": [
+      {
+        "key": "intro",
+        "type": "section"
+      },
+      {
+        "key": "api_key",
+        "type": "secret"
+      },
+      {
+        "key": "system_ids",
+        "type": "string"
+      },
+      {
+        "key": "quota",
+        "type": "section"
+      },
+      {
+        "key": "donation",
+        "type": "boolean"
+      },
+      {
+        "key": "language",
+        "type": "select"
+      }
+    ],
+    "actions": ["test_connection", "diagnostic"],
+    "action_fields": {
+      "test_connection": [],
+      "diagnostic": []
+    },
+    "widgets": [
+      {
+        "key": "production",
+        "settings": ["system"],
+        "options": {}
+      },
+      {
+        "key": "days",
+        "settings": ["system"],
+        "options": {}
+      }
+    ],
+    "scene_triggers": [
+      {
+        "key": "system_silent",
+        "fields": [
+          {
+            "key": "system",
+            "options": []
+          }
+        ],
+        "variables": [
+          {
+            "key": "system",
+            "type": "string"
+          },
+          {
+            "key": "system_name",
+            "type": "string"
+          },
+          {
+            "key": "last_status_time",
+            "type": "string"
+          },
+          {
+            "key": "minutes_silent",
+            "type": "number"
+          },
+          {
+            "key": "last_power_w",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "key": "system_back",
+        "fields": [
+          {
+            "key": "system",
+            "options": []
+          }
+        ],
+        "variables": [
+          {
+            "key": "system",
+            "type": "string"
+          },
+          {
+            "key": "system_name",
+            "type": "string"
+          },
+          {
+            "key": "minutes_silent",
+            "type": "number"
+          },
+          {
+            "key": "power_w",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "key": "daily_summary",
+        "fields": [
+          {
+            "key": "system",
+            "options": []
+          }
+        ],
+        "variables": [
+          {
+            "key": "system",
+            "type": "string"
+          },
+          {
+            "key": "system_name",
+            "type": "string"
+          },
+          {
+            "key": "date",
+            "type": "string"
+          },
+          {
+            "key": "production_kwh",
+            "type": "number"
+          },
+          {
+            "key": "exported_kwh",
+            "type": "number"
+          },
+          {
+            "key": "consumed_kwh",
+            "type": "number"
+          },
+          {
+            "key": "peak_power_w",
+            "type": "number"
+          },
+          {
+            "key": "peak_time",
+            "type": "string"
+          },
+          {
+            "key": "efficiency_kwh_kw",
+            "type": "number"
+          },
+          {
+            "key": "condition",
+            "type": "string"
+          },
+          {
+            "key": "is_record",
+            "type": "boolean"
+          },
+          {
+            "key": "summary",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "key": "daily_record",
+        "fields": [
+          {
+            "key": "system",
+            "options": []
+          }
+        ],
+        "variables": [
+          {
+            "key": "system",
+            "type": "string"
+          },
+          {
+            "key": "system_name",
+            "type": "string"
+          },
+          {
+            "key": "date",
+            "type": "string"
+          },
+          {
+            "key": "efficiency_kwh_kw",
+            "type": "number"
+          },
+          {
+            "key": "production_kwh",
+            "type": "number"
+          },
+          {
+            "key": "previous_record_kwh_kw",
+            "type": "number"
+          },
+          {
+            "key": "previous_record_date",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "key": "api_key_refused",
+        "fields": [],
+        "variables": [
+          {
+            "key": "reason",
+            "type": "string"
+          },
+          {
+            "key": "message",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "scene_actions": [
+      {
+        "key": "send_status",
+        "fields": [
+          "system",
+          "power",
+          "energy",
+          "energy_unit",
+          "consumption_power",
+          "consumption_energy",
+          "temperature",
+          "voltage",
+          "cumulative",
+          "net"
+        ],
+        "outputs": [
+          {
+            "key": "result",
+            "type": "string"
+          },
+          {
+            "key": "date",
+            "type": "string"
+          },
+          {
+            "key": "time",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "key": "send_daily_output",
+        "fields": [
+          "system",
+          "date",
+          "generated",
+          "exported",
+          "consumption",
+          "import_peak",
+          "import_off_peak",
+          "temperatures",
+          "condition",
+          "comment"
+        ],
+        "outputs": [
+          {
+            "key": "result",
+            "type": "string"
+          },
+          {
+            "key": "date",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "key": "get_today",
+        "fields": ["system"],
+        "outputs": [
+          {
+            "key": "production_kwh",
+            "type": "number"
+          },
+          {
+            "key": "exported_kwh",
+            "type": "number"
+          },
+          {
+            "key": "consumed_kwh",
+            "type": "number"
+          },
+          {
+            "key": "peak_power_w",
+            "type": "number"
+          },
+          {
+            "key": "peak_time",
+            "type": "string"
+          },
+          {
+            "key": "efficiency_kwh_kw",
+            "type": "number"
+          },
+          {
+            "key": "power_w",
+            "type": "number"
+          },
+          {
+            "key": "last_status_time",
+            "type": "string"
+          },
+          {
+            "key": "minutes_since_status",
+            "type": "number"
+          },
+          {
+            "key": "system_name",
+            "type": "string"
+          },
+          {
+            "key": "summary",
+            "type": "string"
+          }
+        ]
+      }
+    ]
+  }
+}

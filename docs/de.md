@@ -1,0 +1,86 @@
+# PVOutput
+
+## Überblick
+
+Diese Integration bringt die Solaranlagen deines [PVOutput](https://pvoutput.org)-Kontos in Gladys und lässt deine Szenen Daten an PVOutput senden. PVOutput.org ist ein kostenloser Dienst, auf dem Besitzer von Solaranlagen ihre Erzeugung teilen und vergleichen; die Integration nutzt seine offizielle API mit deinem eigenen Schlüssel und ist nicht mit PVOutput verbunden.
+
+- Ein Gerät pro System (bis zu fünf): erzeugte Leistung, heute erzeugte Energie, Gesamterzeugung und — wenn das System sie veröffentlicht — verbrauchte Leistung und Energie von heute, Temperatur und Spannung.
+- Zwei Dashboard-Widgets: das System heute (mit der Tageskurve) und seine letzten 30 Tage.
+- Szenen-Auslöser: System tagsüber still, System wieder da, Tagesbilanz nach Sonnenuntergang, Rekordtag, Schlüssel abgelehnt.
+- Szenen-Aktionen: Live-Status senden, Tagesertrag senden, Tag eines Systems lesen.
+
+Transport: Cloud. Dein API-Schlüssel, deine System-IDs und die Werte, die deine Szenen senden, gehen an `pvoutput.org`; sonst verlässt nichts Gladys.
+
+## Voraussetzungen
+
+- Gladys Assistant 5.1.0 oder neuer.
+- Ein (kostenloses) PVOutput-Konto mit aktiviertem API-Zugang.
+- **Der API-Schlüssel**: Öffne auf pvoutput.org **Settings**, stelle **API Access** auf **Enabled**, klicke auf **New Key** und dann auf **Save**. Ein _Nur-Lese-Schlüssel_ (read only key) genügt zum Lesen deiner Systeme; um aus Szenen Status oder Erträge zu senden, braucht es den _Standardschlüssel_.
+- **Die System-ID** jedes Systems: unten auf der Seite Settings, unter **Registered Systems**.
+
+Das Kontingent: PVOutput erlaubt **60 Anfragen pro Stunde und Schlüssel** (300 im Spendenmodus), für alle Systeme und alle Apps mit diesem Schlüssel zusammen. Die Integration bleibt von selbst darunter, hält 15 Anfragen pro Stunde (60 im Spendenmodus) für deine Szenen frei und pausiert bis zur nächsten Stunde, wenn PVOutput meldet, dass das Kontingent aufgebraucht ist. Jeder Status, den eine Szene sendet, ist eine Anfrage: Eine Szene alle 5 Minuten verbraucht 12 Anfragen pro Stunde.
+
+## Konfiguration
+
+| Feld              | Bedeutung                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------- |
+| API-Schlüssel     | Der Schlüssel aus Settings → API Access (geheim, nie wieder angezeigt oder in die Logs geschrieben)  |
+| System-ID(s)      | Eine System-ID oder mehrere, durch Kommas getrennt (höchstens fünf), desselben Kontos                |
+| Spendenmodus      | Ankreuzen, wenn dein Konto im Spendenmodus ist (300 Anfragen pro Stunde)                             |
+| Sprache der Texte | Namen der Funktionen, Texte und Fehler der Szenen; automatisch folgt der Sprache des letzten Widgets |
+
+Drücke dann **Verbindung testen**: Es zeigt für jedes System Name, Größe, Statusintervall, Zeitzone und die verbleibenden Anfragen der Stunde. **Diagnose** schreibt den Zustand der Integration in ihre Logs, ohne den Schlüssel.
+
+## Verwendung
+
+### Geräte
+
+Öffne **Erkennung** und füge deine Systeme hinzu. Jedes Gerät hat:
+
+- **Solarerzeugung** (W): der letzte Status, nachts 0; ein tagsüber verspätetes System behält seinen letzten Wert;
+- **Erzeugung heute** (kWh) und **Gesamterzeugung** (kWh, ein Zählerstand für den Verlauf: Er speist nie Verbrauch oder Kosten in Gladys);
+- wenn das System sie veröffentlicht: **Verbrauch** (W), **Verbrauch heute** (kWh), **Temperatur** (°C, nicht im Raummittel), **Spannung** (V).
+
+Eine Funktion erscheint, wenn PVOutput zum ersten Mal einen Wert dafür liefert, und verschwindet nie. Die Abfragen folgen tagsüber dem Statusintervall jedes Systems (5 bis 15 Minuten) und nachts alle 30 Minuten, und werden länger, wenn du mehrere Systeme verfolgst.
+
+### Dashboard-Widgets
+
+![Die zwei Widgets: ein System heute mit seiner Leistungskurve und seine letzten 30 Tage als Balken (generierte Illustration, kein Screenshot)](https://raw.githubusercontent.com/William-De71/gladys-pvoutput/main/docs/assets/widgets.de.png)
+
+- **PVOutput heute**: aktuelle Leistung, Tagesenergie, Verbrauch oder Einspeisung, Ertrag (kWh/kWp), Tageskurve mit Spitze, Zeit des letzten Status (oder still, oder Nacht) und verbleibende Anfragen der Stunde. Die Kurve wird nur gelesen, solange das Widget angezeigt wird.
+- **PVOutput, 30 Tage**: die letzten 30 Tage als Balken, die Summe des Monats, der beste Tag, das Mittel, der Rekordertrag und sein Datum, die Gesamterzeugung.
+
+Wähle das System in den Einstellungen des Widgets (leer: das erste).
+
+### Szenen
+
+Auslöser:
+
+- **PVOutput: System still**: kein neuer Status während 3 Statusintervallen (mindestens 30 Minuten), während am System die Sonne scheint. Nie nachts: Wechselrichter veröffentlichen dann nichts. **PVOutput: System wieder da**: Es veröffentlicht wieder.
+- **PVOutput: Tagesbilanz**: einmal am Tag, etwa eine Stunde nach Sonnenuntergang am System, mit Erzeugung, Einspeisung, Verbrauch, Spitze, Ertrag und einem Satz (`summary`).
+- **PVOutput: Rekordtag**: Der Ertrag des Tages ist der Rekord des Systems.
+- **PVOutput: Schlüssel abgelehnt**: PVOutput lehnt den Schlüssel ab.
+
+Aktionen:
+
+- **PVOutput: Status senden**: Die Werte sind Textfelder, die die `{{…}}`-Variablen der vorherigen Aktionen annehmen (zum Beispiel „letzten Wert eines Geräts holen“). Energien in kWh (oder Wh, in der Aktion gewählt oder hinter den Wert geschrieben), Leistungen in W. „Kumulierte Werte“ sagt, dass eine Energie ein Gesamtzählerstand ist; „Nettodaten“ sendet Einspeise- und Bezugsleistung eines Zählers. Datum und Zeit: jetzt, in der Zeitzone des Systems.
+- **PVOutput: Tagesertrag senden**: heute oder gestern; Erzeugung, Einspeisung, Verbrauch, Bezug Hoch- und Niedertarif in kWh (oder in Wh geschrieben, `6210 Wh`), Temperaturen `min / max`, Wetterlage, Kommentar.
+- **PVOutput: Tag eines Systems lesen**: Erzeugung, Einspeisung, Verbrauch, Spitze, Ertrag, aktuelle Leistung, letzter Status und ein Satz, ohne Anfrage.
+
+Beispiele:
+
+1. Alle 5 Minuten → letzten Wert der Wechselrichterleistung und seines Erzeugungszählers holen → **PVOutput: Status senden** mit Leistung `{{…}}`, Energie `{{…}}` und „Erzeugung ist ein Zählerstand“.
+2. Jeden Abend um 23:30 → Zählerwerte des Tages holen → **PVOutput: Tagesertrag senden** mit Einspeisung und Bezug.
+3. Wenn **PVOutput: System still** → Benachrichtigung „Der Wechselrichter schweigt seit {{triggerEvent.data.last_status_time}}“ senden.
+4. Wenn **PVOutput: Tagesbilanz** → Nachricht „Heute: {{triggerEvent.data.production_kwh}} kWh“ senden.
+
+## Fehlerbehebung
+
+- **„PVOutput lehnt den API-Schlüssel ab“**: Prüfe den Schlüssel unter Settings → API Access und dass API Access auf _Enabled_ steht. Ein neuer Schlüssel ersetzt den alten.
+- **„PVOutput kennt die System-ID nicht“**: Die System-ID ist eine Zahl unter Registered Systems, für ein System des Kontos des Schlüssels.
+- **„Der Schlüssel ist nur zum Lesen“**: Lesen funktioniert, Senden braucht den Standardschlüssel.
+- **„Abfragen pausiert bis …“**: Die Anfragen der Stunde sind aufgebraucht, oft weil eine andere App denselben Schlüssel nutzt. Sie gehen zur nächsten Stunde weiter; deine Szenen behalten eine Reserve.
+- **„Moon Powered“** beim Senden: PVOutput glaubt, am System sei Nacht: Prüfe die Zeitzone des Systems auf PVOutput.
+- **Eine Energie „zu hoch“**: Der Wert ist wohl in Wh, die Aktion erwartet kWh (oder ein Zählerstand ohne „Kumulierte Werte“).
+- **Keine Kurve im Widget**: Sie kommt mit der nächsten Abfrage, sobald das Widget angezeigt wird (einige Minuten).
+- Melde ein Problem auf GitHub mit den Versionen von Gladys und der Integration, der Meldung von **Verbindung testen** und den von **Diagnose** geschriebenen Zeilen. Füge nie deinen Schlüssel ein.

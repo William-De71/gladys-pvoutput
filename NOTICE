@@ -1,0 +1,13 @@
+Gladys PVOutput integration
+Copyright 2026 William Deren
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+It reads and writes the data of the PVOutput systems of the user through the
+official PVOutput API (https://pvoutput.org/help/api_specification.html),
+with the API key of the user's own account. PVOutput.org is a free service
+run by its own authors; the data belong to the owners of the systems. This
+integration is not affiliated with nor endorsed by PVOutput. The scope follows
+the Home Assistant "PVOutput" integration (Apache-2.0); no code is taken from
+it. The sunrise and sunset times follow the published equations of the NOAA
+solar calculator (https://gml.noaa.gov/grad/solcalc/calcdetails.html).

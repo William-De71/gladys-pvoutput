@@ -1,0 +1,1553 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "PVOutput",
+  "description": {
+    "en": "PVOutput solar systems: production, consumption, and statuses sent from your scenes.",
+    "fr": "Systèmes solaires PVOutput : production, consommation, et envoi de statuts par scène.",
+    "de": "PVOutput-Solaranlagen: Erzeugung, Verbrauch und Statusmeldungen aus deinen Szenen.",
+    "es": "Sistemas solares PVOutput: producción, consumo y envío de estados desde escenas."
+  },
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/william-de71/gladys-pvoutput:0.1.0",
+  "gladys_version": ">=5.1.0",
+  "categories": ["energy"],
+  "cover_image": "https://raw.githubusercontent.com/William-De71/gladys-pvoutput/main/cover.jpg",
+  "transports": ["cloud"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "PVOutput API key",
+        "fr": "Clé d’API PVOutput",
+        "de": "PVOutput-API-Schlüssel",
+        "es": "Clave de API de PVOutput"
+      },
+      "description": {
+        "en": "PVOutput.org is a free service to share and compare the output of solar systems. On pvoutput.org, open Settings, set API Access to Enabled, click New Key, then Save: the key is shown there. A read only key is enough to read your systems; sending statuses or daily outputs from your scenes needs the standard key. The data travel to pvoutput.org (cloud). This integration is not affiliated with PVOutput.",
+        "fr": "PVOutput.org est un service gratuit pour partager et comparer la production des installations solaires. Sur pvoutput.org, ouvrez Settings, passez API Access sur Enabled, cliquez sur New Key, puis Save : la clé s’affiche à cet endroit. Une clé en lecture seule suffit pour lire vos systèmes ; envoyer des statuts ou des productions journalières depuis vos scènes demande la clé standard. Les données transitent par pvoutput.org (cloud). Cette intégration n’est pas affiliée à PVOutput.",
+        "de": "PVOutput.org ist ein kostenloser Dienst, um den Ertrag von Solaranlagen zu teilen und zu vergleichen. Öffne auf pvoutput.org Settings, stelle API Access auf Enabled, klicke auf New Key und dann auf Save: Dort wird der Schlüssel angezeigt. Ein Nur-Lese-Schlüssel genügt zum Lesen deiner Systeme; um Status oder Tageserträge aus deinen Szenen zu senden, braucht es den Standardschlüssel. Die Daten gehen an pvoutput.org (Cloud). Diese Integration ist nicht mit PVOutput verbunden.",
+        "es": "PVOutput.org es un servicio gratuito para compartir y comparar la producción de las instalaciones solares. En pvoutput.org, abra Settings, ponga API Access en Enabled, pulse New Key y luego Save: la clave aparece ahí. Una clave de solo lectura basta para leer sus sistemas; enviar estados o producciones diarias desde sus escenas requiere la clave estándar. Los datos pasan por pvoutput.org (nube). Esta integración no está afiliada a PVOutput."
+      },
+      "links": [
+        {
+          "url": "https://pvoutput.org/account.jsp",
+          "label": {
+            "en": "PVOutput settings (the key)",
+            "fr": "Réglages PVOutput (la clé)",
+            "de": "PVOutput-Einstellungen (Schlüssel)",
+            "es": "Ajustes de PVOutput (la clave)"
+          }
+        },
+        {
+          "url": "https://pvoutput.org/help/api_specification.html",
+          "label": {
+            "en": "PVOutput API",
+            "fr": "API PVOutput",
+            "de": "PVOutput-API",
+            "es": "API de PVOutput"
+          }
+        }
+      ]
+    },
+    {
+      "key": "api_key",
+      "type": "secret",
+      "required": true,
+      "label": {
+        "en": "API key",
+        "fr": "Clé d’API",
+        "de": "API-Schlüssel",
+        "es": "Clave de API"
+      },
+      "placeholder": {
+        "en": "The key of Settings → API Access",
+        "fr": "La clé de Settings → API Access",
+        "de": "Der Schlüssel aus Settings → API Access",
+        "es": "La clave de Settings → API Access"
+      }
+    },
+    {
+      "key": "system_ids",
+      "type": "string",
+      "required": true,
+      "label": {
+        "en": "System Id(s)",
+        "fr": "System Id(s)",
+        "de": "System-ID(s)",
+        "es": "System Id(s)"
+      },
+      "description": {
+        "en": "The System Id of each system, under Registered Systems at the bottom of the Settings page. Several systems of the same account: separate them with commas (five at most).",
+        "fr": "Le System Id de chaque système, sous Registered Systems en bas de la page Settings. Plusieurs systèmes du même compte : séparez-les par des virgules (cinq au plus).",
+        "de": "Die System-ID jedes Systems, unter Registered Systems unten auf der Seite Settings. Mehrere Systeme desselben Kontos: durch Kommas trennen (höchstens fünf).",
+        "es": "El System Id de cada sistema, en Registered Systems al final de la página Settings. Varios sistemas de la misma cuenta: sepárelos con comas (cinco como máximo)."
+      },
+      "placeholder": {
+        "en": "12345, 67890",
+        "fr": "12345, 67890",
+        "de": "12345, 67890",
+        "es": "12345, 67890"
+      }
+    },
+    {
+      "key": "quota",
+      "type": "section",
+      "label": {
+        "en": "Requests and quota",
+        "fr": "Requêtes et quota",
+        "de": "Anfragen und Kontingent",
+        "es": "Peticiones y cuota"
+      },
+      "description": {
+        "en": "PVOutput allows 60 requests an hour per key (300 in donation mode), for every system and every app using the key together. The integration spaces its readings to stay within it and keeps a quarter of the hour for your scenes: a scene that sends a status every 5 minutes uses 12 requests an hour.",
+        "fr": "PVOutput accepte 60 requêtes par heure et par clé (300 en mode donation), pour tous les systèmes et toutes les applications qui utilisent la clé. L’intégration espace ses lectures pour rester en dessous et garde un quart de l’heure pour vos scènes : une scène qui envoie un statut toutes les 5 minutes consomme 12 requêtes par heure.",
+        "de": "PVOutput erlaubt 60 Anfragen pro Stunde und Schlüssel (300 im Spendenmodus), für alle Systeme und alle Apps mit diesem Schlüssel zusammen. Die Integration verteilt ihre Abfragen, um darunter zu bleiben, und hält ein Viertel der Stunde für deine Szenen frei: Eine Szene, die alle 5 Minuten einen Status sendet, verbraucht 12 Anfragen pro Stunde.",
+        "es": "PVOutput acepta 60 peticiones por hora y clave (300 en modo donación), para todos los sistemas y todas las aplicaciones que usan la clave. La integración espacia sus lecturas para no superarlo y reserva una cuarta parte de la hora para sus escenas: una escena que envía un estado cada 5 minutos consume 12 peticiones por hora."
+      },
+      "links": [
+        {
+          "url": "https://pvoutput.org/help/donations.html",
+          "label": {
+            "en": "Donation mode",
+            "fr": "Mode donation",
+            "de": "Spendenmodus",
+            "es": "Modo donación"
+          }
+        }
+      ]
+    },
+    {
+      "key": "donation",
+      "type": "boolean",
+      "default": false,
+      "label": {
+        "en": "Donation mode",
+        "fr": "Mode donation",
+        "de": "Spendenmodus",
+        "es": "Modo donación"
+      },
+      "description": {
+        "en": "The account is in donation mode: 300 requests an hour instead of 60. PVOutput tells the real quota in its answers: a wrong choice only slows the readings down.",
+        "fr": "Le compte est en mode donation : 300 requêtes par heure au lieu de 60. PVOutput indique le vrai quota dans ses réponses : un mauvais choix ne fait que ralentir les lectures.",
+        "de": "Das Konto ist im Spendenmodus: 300 statt 60 Anfragen pro Stunde. PVOutput nennt das echte Kontingent in seinen Antworten: Eine falsche Wahl verlangsamt nur die Abfragen.",
+        "es": "La cuenta está en modo donación: 300 peticiones por hora en lugar de 60. PVOutput indica la cuota real en sus respuestas: una elección errónea solo ralentiza las lecturas."
+      }
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "default": "auto",
+      "label": {
+        "en": "Language of the texts",
+        "fr": "Langue des textes",
+        "de": "Sprache der Texte",
+        "es": "Idioma de los textos"
+      },
+      "description": {
+        "en": "Feature names, scene texts and errors. Automatic: the language of the last widget shown.",
+        "fr": "Noms des fonctionnalités, textes et erreurs des scènes. Automatique : la langue du dernier widget affiché.",
+        "de": "Namen der Funktionen, Texte und Fehler der Szenen. Automatisch: die Sprache des zuletzt angezeigten Widgets.",
+        "es": "Nombres de las funciones, textos y errores de las escenas. Automático: el idioma del último widget mostrado."
+      },
+      "options": [
+        {
+          "value": "auto",
+          "label": {
+            "en": "Automatic",
+            "fr": "Automatique",
+            "de": "Automatisch",
+            "es": "Automático"
+          }
+        },
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "English",
+            "de": "English",
+            "es": "English"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "Français",
+            "fr": "Français",
+            "de": "Français",
+            "es": "Français"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "Deutsch",
+            "fr": "Deutsch",
+            "de": "Deutsch",
+            "es": "Deutsch"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Español",
+            "fr": "Español",
+            "de": "Español",
+            "es": "Español"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "timeout_seconds": 60,
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "description": {
+        "en": "Reads each system on PVOutput: name, size, status interval, timezone, and the requests left this hour.",
+        "fr": "Lit chaque système sur PVOutput : nom, puissance, intervalle de statut, fuseau horaire, et les requêtes restantes de l’heure.",
+        "de": "Liest jedes System auf PVOutput: Name, Größe, Statusintervall, Zeitzone und die verbleibenden Anfragen der Stunde.",
+        "es": "Lee cada sistema en PVOutput: nombre, potencia, intervalo de estado, zona horaria y las peticiones restantes de la hora."
+      }
+    },
+    {
+      "key": "diagnostic",
+      "timeout_seconds": 10,
+      "label": {
+        "en": "Diagnostic",
+        "fr": "Diagnostic",
+        "de": "Diagnose",
+        "es": "Diagnóstico"
+      },
+      "description": {
+        "en": "Writes the state of the integration to its logs, without the key.",
+        "fr": "Écrit l’état de l’intégration dans ses journaux, sans la clé.",
+        "de": "Schreibt den Zustand der Integration in ihre Logs, ohne den Schlüssel.",
+        "es": "Escribe el estado de la integración en sus registros, sin la clave."
+      }
+    }
+  ],
+  "widgets": [
+    {
+      "key": "production",
+      "icon": "sun",
+      "label": {
+        "en": "PVOutput today",
+        "fr": "PVOutput aujourd’hui",
+        "de": "PVOutput heute",
+        "es": "PVOutput hoy"
+      },
+      "description": {
+        "en": "A system today: power now, energy of the day, yield, and the curve of the day.",
+        "fr": "Un système aujourd’hui : puissance, énergie du jour, rendement et courbe du jour.",
+        "de": "Ein System heute: Leistung, Tagesenergie, Ertrag und die Kurve des Tages.",
+        "es": "Un sistema hoy: potencia, energía del día, rendimiento y curva del día."
+      },
+      "settings": [
+        {
+          "key": "system",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "System",
+            "fr": "Système",
+            "de": "System",
+            "es": "Sistema"
+          },
+          "description": {
+            "en": "A PVOutput device. Leave empty for the first system.",
+            "fr": "Un appareil PVOutput. Laissez vide pour le premier système.",
+            "de": "Ein PVOutput-Gerät. Leer lassen für das erste System.",
+            "es": "Un dispositivo PVOutput. Déjelo vacío para el primer sistema."
+          }
+        }
+      ]
+    },
+    {
+      "key": "days",
+      "icon": "bar-chart-2",
+      "label": {
+        "en": "PVOutput, 30 days",
+        "fr": "PVOutput, 30 jours",
+        "de": "PVOutput, 30 Tage",
+        "es": "PVOutput, 30 días"
+      },
+      "description": {
+        "en": "The last 30 days of a system, its month, its best day and its record.",
+        "fr": "Les 30 derniers jours d’un système, son mois, son meilleur jour et son record.",
+        "de": "Die letzten 30 Tage eines Systems, sein Monat, sein bester Tag und sein Rekord.",
+        "es": "Los últimos 30 días de un sistema, su mes, su mejor día y su récord."
+      },
+      "settings": [
+        {
+          "key": "system",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "System",
+            "fr": "Système",
+            "de": "System",
+            "es": "Sistema"
+          },
+          "description": {
+            "en": "A PVOutput device. Leave empty for the first system.",
+            "fr": "Un appareil PVOutput. Laissez vide pour le premier système.",
+            "de": "Ein PVOutput-Gerät. Leer lassen für das erste System.",
+            "es": "Un dispositivo PVOutput. Déjelo vacío para el primer sistema."
+          }
+        }
+      ]
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "system_silent",
+      "label": {
+        "en": "PVOutput: system silent",
+        "fr": "PVOutput : système silencieux",
+        "de": "PVOutput: System still",
+        "es": "PVOutput: sistema en silencio"
+      },
+      "description": {
+        "en": "No new status for 3 status intervals (30 minutes at least) while the sun is up at the system.",
+        "fr": "Aucun nouveau statut pendant 3 intervalles de statut (30 minutes au moins) alors que le soleil est levé au système.",
+        "de": "Kein neuer Status während 3 Statusintervallen (mindestens 30 Minuten), während am System die Sonne scheint.",
+        "es": "Ningún estado nuevo durante 3 intervalos de estado (30 minutos como mínimo) con el sol salido en el sistema."
+      },
+      "fields": [
+        {
+          "key": "system",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "System",
+            "fr": "Système",
+            "de": "System",
+            "es": "Sistema"
+          },
+          "description": {
+            "en": "A PVOutput device. Leave empty for any system.",
+            "fr": "Un appareil PVOutput. Laissez vide pour tous les systèmes.",
+            "de": "Ein PVOutput-Gerät. Leer lassen für alle Systeme.",
+            "es": "Un dispositivo PVOutput. Déjelo vacío para cualquier sistema."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "system",
+          "type": "string",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          }
+        },
+        {
+          "key": "system_name",
+          "type": "string",
+          "label": {
+            "en": "System name",
+            "fr": "Nom du système",
+            "de": "Name des Systems",
+            "es": "Nombre del sistema"
+          }
+        },
+        {
+          "key": "last_status_time",
+          "type": "string",
+          "label": {
+            "en": "Time of the last status",
+            "fr": "Heure du dernier statut",
+            "de": "Zeit des letzten Status",
+            "es": "Hora del último estado"
+          }
+        },
+        {
+          "key": "minutes_silent",
+          "type": "number",
+          "label": {
+            "en": "Minutes without a status",
+            "fr": "Minutes sans statut",
+            "de": "Minuten ohne Status",
+            "es": "Minutos sin estado"
+          }
+        },
+        {
+          "key": "last_power_w",
+          "type": "number",
+          "label": {
+            "en": "Last power (W)",
+            "fr": "Dernière puissance (W)",
+            "de": "Letzte Leistung (W)",
+            "es": "Última potencia (W)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "system_back",
+      "label": {
+        "en": "PVOutput: system back",
+        "fr": "PVOutput : retour du système",
+        "de": "PVOutput: System wieder da",
+        "es": "PVOutput: sistema de vuelta"
+      },
+      "description": {
+        "en": "A silent system publishes a status again.",
+        "fr": "Un système silencieux publie de nouveau un statut.",
+        "de": "Ein stilles System veröffentlicht wieder einen Status.",
+        "es": "Un sistema en silencio vuelve a publicar un estado."
+      },
+      "fields": [
+        {
+          "key": "system",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "System",
+            "fr": "Système",
+            "de": "System",
+            "es": "Sistema"
+          },
+          "description": {
+            "en": "A PVOutput device. Leave empty for any system.",
+            "fr": "Un appareil PVOutput. Laissez vide pour tous les systèmes.",
+            "de": "Ein PVOutput-Gerät. Leer lassen für alle Systeme.",
+            "es": "Un dispositivo PVOutput. Déjelo vacío para cualquier sistema."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "system",
+          "type": "string",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          }
+        },
+        {
+          "key": "system_name",
+          "type": "string",
+          "label": {
+            "en": "System name",
+            "fr": "Nom du système",
+            "de": "Name des Systems",
+            "es": "Nombre del sistema"
+          }
+        },
+        {
+          "key": "minutes_silent",
+          "type": "number",
+          "label": {
+            "en": "Minutes it was silent",
+            "fr": "Minutes de silence",
+            "de": "Minuten der Stille",
+            "es": "Minutos en silencio"
+          }
+        },
+        {
+          "key": "power_w",
+          "type": "number",
+          "label": {
+            "en": "Power (W)",
+            "fr": "Puissance (W)",
+            "de": "Leistung (W)",
+            "es": "Potencia (W)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "daily_summary",
+      "label": {
+        "en": "PVOutput: summary of the day",
+        "fr": "PVOutput : bilan du jour",
+        "de": "PVOutput: Tagesbilanz",
+        "es": "PVOutput: balance del día"
+      },
+      "description": {
+        "en": "Once a day, about an hour after sunset at the system: production, export, consumption, peak, yield.",
+        "fr": "Une fois par jour, environ une heure après le coucher du soleil au système : production, injection, consommation, pic, rendement.",
+        "de": "Einmal am Tag, etwa eine Stunde nach Sonnenuntergang am System: Erzeugung, Einspeisung, Verbrauch, Spitze, Ertrag.",
+        "es": "Una vez al día, una hora después de la puesta de sol en el sistema: producción, exportación, consumo, pico, rendimiento."
+      },
+      "fields": [
+        {
+          "key": "system",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "System",
+            "fr": "Système",
+            "de": "System",
+            "es": "Sistema"
+          },
+          "description": {
+            "en": "A PVOutput device. Leave empty for any system.",
+            "fr": "Un appareil PVOutput. Laissez vide pour tous les systèmes.",
+            "de": "Ein PVOutput-Gerät. Leer lassen für alle Systeme.",
+            "es": "Un dispositivo PVOutput. Déjelo vacío para cualquier sistema."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "system",
+          "type": "string",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          }
+        },
+        {
+          "key": "system_name",
+          "type": "string",
+          "label": {
+            "en": "System name",
+            "fr": "Nom du système",
+            "de": "Name des Systems",
+            "es": "Nombre del sistema"
+          }
+        },
+        {
+          "key": "date",
+          "type": "string",
+          "label": {
+            "en": "Date (YYYY-MM-DD)",
+            "fr": "Date (AAAA-MM-JJ)",
+            "de": "Datum (JJJJ-MM-TT)",
+            "es": "Fecha (AAAA-MM-DD)"
+          }
+        },
+        {
+          "key": "production_kwh",
+          "type": "number",
+          "label": {
+            "en": "Production (kWh)",
+            "fr": "Production (kWh)",
+            "de": "Erzeugung (kWh)",
+            "es": "Producción (kWh)"
+          }
+        },
+        {
+          "key": "exported_kwh",
+          "type": "number",
+          "label": {
+            "en": "Exported (kWh)",
+            "fr": "Injecté (kWh)",
+            "de": "Eingespeist (kWh)",
+            "es": "Exportado (kWh)"
+          }
+        },
+        {
+          "key": "consumed_kwh",
+          "type": "number",
+          "label": {
+            "en": "Consumed (kWh)",
+            "fr": "Consommé (kWh)",
+            "de": "Verbraucht (kWh)",
+            "es": "Consumido (kWh)"
+          }
+        },
+        {
+          "key": "peak_power_w",
+          "type": "number",
+          "label": {
+            "en": "Peak power (W)",
+            "fr": "Puissance de pic (W)",
+            "de": "Spitzenleistung (W)",
+            "es": "Potencia pico (W)"
+          }
+        },
+        {
+          "key": "peak_time",
+          "type": "string",
+          "label": {
+            "en": "Time of the peak",
+            "fr": "Heure du pic",
+            "de": "Zeit der Spitze",
+            "es": "Hora del pico"
+          }
+        },
+        {
+          "key": "efficiency_kwh_kw",
+          "type": "number",
+          "label": {
+            "en": "Yield (kWh/kW)",
+            "fr": "Rendement (kWh/kWc)",
+            "de": "Ertrag (kWh/kWp)",
+            "es": "Rendimiento (kWh/kWp)"
+          }
+        },
+        {
+          "key": "condition",
+          "type": "string",
+          "label": {
+            "en": "Condition (PVOutput)",
+            "fr": "Condition (PVOutput)",
+            "de": "Wetterlage (PVOutput)",
+            "es": "Condición (PVOutput)"
+          }
+        },
+        {
+          "key": "is_record",
+          "type": "boolean",
+          "label": {
+            "en": "Record of the system",
+            "fr": "Record du système",
+            "de": "Rekord des Systems",
+            "es": "Récord del sistema"
+          }
+        },
+        {
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Summary",
+            "fr": "Résumé",
+            "de": "Zusammenfassung",
+            "es": "Resumen"
+          }
+        }
+      ]
+    },
+    {
+      "key": "daily_record",
+      "label": {
+        "en": "PVOutput: record day",
+        "fr": "PVOutput : journée record",
+        "de": "PVOutput: Rekordtag",
+        "es": "PVOutput: día récord"
+      },
+      "description": {
+        "en": "The yield of the day is the best of the life of the system (lifetime statistics of PVOutput).",
+        "fr": "Le rendement du jour est le meilleur de la vie du système (statistiques de PVOutput).",
+        "de": "Der Ertrag des Tages ist der beste seit Bestehen des Systems (Statistik von PVOutput).",
+        "es": "El rendimiento del día es el mejor de la vida del sistema (estadísticas de PVOutput)."
+      },
+      "fields": [
+        {
+          "key": "system",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "System",
+            "fr": "Système",
+            "de": "System",
+            "es": "Sistema"
+          },
+          "description": {
+            "en": "A PVOutput device. Leave empty for any system.",
+            "fr": "Un appareil PVOutput. Laissez vide pour tous les systèmes.",
+            "de": "Ein PVOutput-Gerät. Leer lassen für alle Systeme.",
+            "es": "Un dispositivo PVOutput. Déjelo vacío para cualquier sistema."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "system",
+          "type": "string",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          }
+        },
+        {
+          "key": "system_name",
+          "type": "string",
+          "label": {
+            "en": "System name",
+            "fr": "Nom du système",
+            "de": "Name des Systems",
+            "es": "Nombre del sistema"
+          }
+        },
+        {
+          "key": "date",
+          "type": "string",
+          "label": {
+            "en": "Date (YYYY-MM-DD)",
+            "fr": "Date (AAAA-MM-JJ)",
+            "de": "Datum (JJJJ-MM-TT)",
+            "es": "Fecha (AAAA-MM-DD)"
+          }
+        },
+        {
+          "key": "efficiency_kwh_kw",
+          "type": "number",
+          "label": {
+            "en": "Yield (kWh/kW)",
+            "fr": "Rendement (kWh/kWc)",
+            "de": "Ertrag (kWh/kWp)",
+            "es": "Rendimiento (kWh/kWp)"
+          }
+        },
+        {
+          "key": "production_kwh",
+          "type": "number",
+          "label": {
+            "en": "Production (kWh)",
+            "fr": "Production (kWh)",
+            "de": "Erzeugung (kWh)",
+            "es": "Producción (kWh)"
+          }
+        },
+        {
+          "key": "previous_record_kwh_kw",
+          "type": "number",
+          "label": {
+            "en": "Previous record (kWh/kW)",
+            "fr": "Record précédent (kWh/kWc)",
+            "de": "Bisheriger Rekord (kWh/kWp)",
+            "es": "Récord anterior (kWh/kWp)"
+          }
+        },
+        {
+          "key": "previous_record_date",
+          "type": "string",
+          "label": {
+            "en": "Date of the previous record",
+            "fr": "Date du record précédent",
+            "de": "Datum des bisherigen Rekords",
+            "es": "Fecha del récord anterior"
+          }
+        }
+      ]
+    },
+    {
+      "key": "api_key_refused",
+      "label": {
+        "en": "PVOutput: key refused",
+        "fr": "PVOutput : clé refusée",
+        "de": "PVOutput: Schlüssel abgelehnt",
+        "es": "PVOutput: clave rechazada"
+      },
+      "description": {
+        "en": "PVOutput refuses the API key (invalid, disabled, or not for these systems).",
+        "fr": "PVOutput refuse la clé d’API (invalide, désactivée, ou pas celle de ces systèmes).",
+        "de": "PVOutput lehnt den API-Schlüssel ab (ungültig, deaktiviert oder nicht für diese Systeme).",
+        "es": "PVOutput rechaza la clave de API (no válida, desactivada o no es la de estos sistemas)."
+      },
+      "variables": [
+        {
+          "key": "reason",
+          "type": "string",
+          "label": {
+            "en": "Reason (invalid_key, disabled_key)",
+            "fr": "Raison (invalid_key, disabled_key)",
+            "de": "Grund (invalid_key, disabled_key)",
+            "es": "Motivo (invalid_key, disabled_key)"
+          }
+        },
+        {
+          "key": "message",
+          "type": "string",
+          "label": {
+            "en": "Message of PVOutput",
+            "fr": "Message de PVOutput",
+            "de": "Meldung von PVOutput",
+            "es": "Mensaje de PVOutput"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "send_status",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "PVOutput: send a status",
+        "fr": "PVOutput : envoyer un statut",
+        "de": "PVOutput: Status senden",
+        "es": "PVOutput: enviar un estado"
+      },
+      "description": {
+        "en": "Sends a live status now (addstatus): values of Gladys, variables {{…}} accepted. One request of the quota.",
+        "fr": "Envoie un statut en direct maintenant (addstatus) : valeurs de Gladys, variables {{…}} acceptées. Une requête du quota.",
+        "de": "Sendet jetzt einen Live-Status (addstatus): Werte aus Gladys, Variablen {{…}} erlaubt. Eine Anfrage des Kontingents.",
+        "es": "Envía ahora un estado en directo (addstatus): valores de Gladys, variables {{…}} admitidas. Una petición de la cuota."
+      },
+      "fields": [
+        {
+          "key": "system",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "System",
+            "fr": "Système",
+            "de": "System",
+            "es": "Sistema"
+          },
+          "description": {
+            "en": "A PVOutput device. Leave empty for the first system.",
+            "fr": "Un appareil PVOutput. Laissez vide pour le premier système.",
+            "de": "Ein PVOutput-Gerät. Leer lassen für das erste System.",
+            "es": "Un dispositivo PVOutput. Déjelo vacío para el primer sistema."
+          }
+        },
+        {
+          "key": "power",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Power produced (W)",
+            "fr": "Puissance produite (W)",
+            "de": "Erzeugte Leistung (W)",
+            "es": "Potencia producida (W)"
+          },
+          "description": {
+            "en": "Watts. Empty: not sent.",
+            "fr": "Watts. Vide : non envoyée.",
+            "de": "Watt. Leer: nicht gesendet.",
+            "es": "Vatios. Vacío: no se envía."
+          },
+          "placeholder": {
+            "en": "{{…}} or 2350",
+            "fr": "{{…}} ou 2350",
+            "de": "{{…}} oder 2350",
+            "es": "{{…}} o 2350"
+          }
+        },
+        {
+          "key": "energy",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Energy produced",
+            "fr": "Énergie produite",
+            "de": "Erzeugte Energie",
+            "es": "Energía producida"
+          },
+          "description": {
+            "en": "Of the day, or the lifetime index (see Cumulative values), in the unit below.",
+            "fr": "Du jour, ou l’index depuis l’origine (voir Valeurs cumulées), dans l’unité ci-dessous.",
+            "de": "Des Tages oder der Gesamtzählerstand (siehe Kumulierte Werte), in der Einheit unten.",
+            "es": "Del día, o el índice total (ver Valores acumulados), en la unidad de abajo."
+          }
+        },
+        {
+          "key": "energy_unit",
+          "type": "select",
+          "default": "kwh",
+          "required": false,
+          "label": {
+            "en": "Unit of the energies",
+            "fr": "Unité des énergies",
+            "de": "Einheit der Energien",
+            "es": "Unidad de las energías"
+          },
+          "description": {
+            "en": "Converted to Wh for PVOutput.",
+            "fr": "Convertie en Wh pour PVOutput.",
+            "de": "Für PVOutput in Wh umgerechnet.",
+            "es": "Convertida a Wh para PVOutput."
+          },
+          "options": [
+            {
+              "value": "kwh",
+              "label": {
+                "en": "kWh",
+                "fr": "kWh",
+                "de": "kWh",
+                "es": "kWh"
+              }
+            },
+            {
+              "value": "wh",
+              "label": {
+                "en": "Wh",
+                "fr": "Wh",
+                "de": "Wh",
+                "es": "Wh"
+              }
+            }
+          ]
+        },
+        {
+          "key": "consumption_power",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Power consumed (W)",
+            "fr": "Puissance consommée (W)",
+            "de": "Verbrauchte Leistung (W)",
+            "es": "Potencia consumida (W)"
+          },
+          "description": {
+            "en": "Watts. Empty: not sent.",
+            "fr": "Watts. Vide : non envoyée.",
+            "de": "Watt. Leer: nicht gesendet.",
+            "es": "Vatios. Vacío: no se envía."
+          }
+        },
+        {
+          "key": "consumption_energy",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Energy consumed",
+            "fr": "Énergie consommée",
+            "de": "Verbrauchte Energie",
+            "es": "Energía consumida"
+          },
+          "description": {
+            "en": "Of the day, or the lifetime index, in the unit above.",
+            "fr": "Du jour, ou l’index, dans l’unité ci-dessus.",
+            "de": "Des Tages oder der Zählerstand, in der Einheit oben.",
+            "es": "Del día, o el índice, en la unidad de arriba."
+          }
+        },
+        {
+          "key": "temperature",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Temperature (°C)",
+            "fr": "Température (°C)",
+            "de": "Temperatur (°C)",
+            "es": "Temperatura (°C)"
+          },
+          "description": {
+            "en": "Optional.",
+            "fr": "Facultatif.",
+            "de": "Optional.",
+            "es": "Opcional."
+          }
+        },
+        {
+          "key": "voltage",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Voltage (V)",
+            "fr": "Tension (V)",
+            "de": "Spannung (V)",
+            "es": "Tensión (V)"
+          },
+          "description": {
+            "en": "Optional.",
+            "fr": "Facultatif.",
+            "de": "Optional.",
+            "es": "Opcional."
+          }
+        },
+        {
+          "key": "cumulative",
+          "type": "select",
+          "default": "none",
+          "required": false,
+          "label": {
+            "en": "Cumulative values",
+            "fr": "Valeurs cumulées",
+            "de": "Kumulierte Werte",
+            "es": "Valores acumulados"
+          },
+          "description": {
+            "en": "An index of Gladys (lifetime kWh): PVOutput works the energy of the day out of it.",
+            "fr": "Un index de Gladys (kWh depuis l’origine) : PVOutput en déduit l’énergie du jour.",
+            "de": "Ein Zählerstand aus Gladys (kWh insgesamt): PVOutput berechnet daraus die Tagesenergie.",
+            "es": "Un índice de Gladys (kWh totales): PVOutput deduce de él la energía del día."
+          },
+          "options": [
+            {
+              "value": "none",
+              "label": {
+                "en": "None (energies of the day)",
+                "fr": "Aucune (énergies du jour)",
+                "de": "Keine (Tagesenergien)",
+                "es": "Ninguno (energías del día)"
+              }
+            },
+            {
+              "value": "generation",
+              "label": {
+                "en": "Production is an index",
+                "fr": "La production est un index",
+                "de": "Erzeugung ist ein Zählerstand",
+                "es": "La producción es un índice"
+              }
+            },
+            {
+              "value": "consumption",
+              "label": {
+                "en": "Consumption is an index",
+                "fr": "La consommation est un index",
+                "de": "Verbrauch ist ein Zählerstand",
+                "es": "El consumo es un índice"
+              }
+            },
+            {
+              "value": "both",
+              "label": {
+                "en": "Both are indexes",
+                "fr": "Les deux sont des index",
+                "de": "Beide sind Zählerstände",
+                "es": "Ambos son índices"
+              }
+            }
+          ]
+        },
+        {
+          "key": "net",
+          "type": "boolean",
+          "default": false,
+          "required": false,
+          "label": {
+            "en": "Net data",
+            "fr": "Données nettes",
+            "de": "Nettodaten",
+            "es": "Datos netos"
+          },
+          "description": {
+            "en": "The powers are the export (produced) and the import (consumed) of a meter; negative values allowed; not with cumulative values.",
+            "fr": "Les puissances sont l’injection (produite) et le soutirage (consommée) d’un compteur ; valeurs négatives permises ; pas avec des valeurs cumulées.",
+            "de": "Die Leistungen sind Einspeisung (erzeugt) und Bezug (verbraucht) eines Zählers; negative Werte erlaubt; nicht mit kumulierten Werten.",
+            "es": "Las potencias son la exportación (producida) y la importación (consumida) de un contador; valores negativos permitidos; no con valores acumulados."
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "result",
+          "type": "string",
+          "label": {
+            "en": "Result",
+            "fr": "Résultat",
+            "de": "Ergebnis",
+            "es": "Resultado"
+          }
+        },
+        {
+          "key": "date",
+          "type": "string",
+          "label": {
+            "en": "Date sent (YYYY-MM-DD)",
+            "fr": "Date envoyée (AAAA-MM-JJ)",
+            "de": "Gesendetes Datum (JJJJ-MM-TT)",
+            "es": "Fecha enviada (AAAA-MM-DD)"
+          }
+        },
+        {
+          "key": "time",
+          "type": "string",
+          "label": {
+            "en": "Time sent (HH:MM)",
+            "fr": "Heure envoyée (HH:MM)",
+            "de": "Gesendete Zeit (HH:MM)",
+            "es": "Hora enviada (HH:MM)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "send_daily_output",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "PVOutput: send the output of a day",
+        "fr": "PVOutput : envoyer la production d’un jour",
+        "de": "PVOutput: Tagesertrag senden",
+        "es": "PVOutput: enviar la producción de un día"
+      },
+      "description": {
+        "en": "Sends the end of day output (addoutput), e.g. the export and import of a Linky meter. Energies in kWh, or written in Wh.",
+        "fr": "Envoie le bilan d’une journée (addoutput), par ex. l’injection et le soutirage d’un compteur Linky. Énergies en kWh, ou écrites en Wh.",
+        "de": "Sendet den Tagesertrag (addoutput), z. B. Einspeisung und Bezug eines Stromzählers. Energien in kWh oder in Wh geschrieben.",
+        "es": "Envía el balance de un día (addoutput), p. ej. la exportación e importación de un contador. Energías en kWh, o escritas en Wh."
+      },
+      "fields": [
+        {
+          "key": "system",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "System",
+            "fr": "Système",
+            "de": "System",
+            "es": "Sistema"
+          },
+          "description": {
+            "en": "A PVOutput device. Leave empty for the first system.",
+            "fr": "Un appareil PVOutput. Laissez vide pour le premier système.",
+            "de": "Ein PVOutput-Gerät. Leer lassen für das erste System.",
+            "es": "Un dispositivo PVOutput. Déjelo vacío para el primer sistema."
+          }
+        },
+        {
+          "key": "date",
+          "type": "select",
+          "default": "today",
+          "required": false,
+          "label": {
+            "en": "Day",
+            "fr": "Jour",
+            "de": "Tag",
+            "es": "Día"
+          },
+          "options": [
+            {
+              "value": "today",
+              "label": {
+                "en": "Today",
+                "fr": "Aujourd’hui",
+                "de": "Heute",
+                "es": "Hoy"
+              }
+            },
+            {
+              "value": "yesterday",
+              "label": {
+                "en": "Yesterday",
+                "fr": "Hier",
+                "de": "Gestern",
+                "es": "Ayer"
+              }
+            }
+          ]
+        },
+        {
+          "key": "generated",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Energy produced (kWh)",
+            "fr": "Énergie produite (kWh)",
+            "de": "Erzeugte Energie (kWh)",
+            "es": "Energía producida (kWh)"
+          },
+          "description": {
+            "en": "Empty: unchanged on PVOutput.",
+            "fr": "Vide : inchangée sur PVOutput.",
+            "de": "Leer: auf PVOutput unverändert.",
+            "es": "Vacío: sin cambios en PVOutput."
+          }
+        },
+        {
+          "key": "exported",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Energy exported (kWh)",
+            "fr": "Énergie injectée (kWh)",
+            "de": "Eingespeiste Energie (kWh)",
+            "es": "Energía exportada (kWh)"
+          },
+          "description": {
+            "en": "Empty: unchanged on PVOutput.",
+            "fr": "Vide : inchangée sur PVOutput.",
+            "de": "Leer: auf PVOutput unverändert.",
+            "es": "Vacío: sin cambios en PVOutput."
+          }
+        },
+        {
+          "key": "consumption",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Energy consumed (kWh)",
+            "fr": "Énergie consommée (kWh)",
+            "de": "Verbrauchte Energie (kWh)",
+            "es": "Energía consumida (kWh)"
+          },
+          "description": {
+            "en": "Empty: unchanged on PVOutput.",
+            "fr": "Vide : inchangée sur PVOutput.",
+            "de": "Leer: auf PVOutput unverändert.",
+            "es": "Vacío: sin cambios en PVOutput."
+          }
+        },
+        {
+          "key": "import_peak",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Import, peak hours (kWh)",
+            "fr": "Soutirage heures pleines (kWh)",
+            "de": "Bezug Hochtarif (kWh)",
+            "es": "Importación en punta (kWh)"
+          },
+          "description": {
+            "en": "Optional.",
+            "fr": "Facultatif.",
+            "de": "Optional.",
+            "es": "Opcional."
+          }
+        },
+        {
+          "key": "import_off_peak",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Import, off-peak hours (kWh)",
+            "fr": "Soutirage heures creuses (kWh)",
+            "de": "Bezug Niedertarif (kWh)",
+            "es": "Importación en valle (kWh)"
+          },
+          "description": {
+            "en": "Optional.",
+            "fr": "Facultatif.",
+            "de": "Optional.",
+            "es": "Opcional."
+          }
+        },
+        {
+          "key": "temperatures",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Temperatures min / max (°C)",
+            "fr": "Températures min / max (°C)",
+            "de": "Temperaturen min / max (°C)",
+            "es": "Temperaturas mín / máx (°C)"
+          },
+          "description": {
+            "en": "Both or none, separated by a slash.",
+            "fr": "Les deux ou aucune, séparées par une barre oblique.",
+            "de": "Beide oder keine, durch einen Schrägstrich getrennt.",
+            "es": "Ambas o ninguna, separadas por una barra."
+          },
+          "placeholder": {
+            "en": "4.5 / 18",
+            "fr": "4,5 / 18",
+            "de": "4,5 / 18",
+            "es": "4,5 / 18"
+          }
+        },
+        {
+          "key": "condition",
+          "type": "select",
+          "default": "none",
+          "required": false,
+          "label": {
+            "en": "Condition",
+            "fr": "Condition",
+            "de": "Wetterlage",
+            "es": "Condición"
+          },
+          "options": [
+            {
+              "value": "none",
+              "label": {
+                "en": "Not sent",
+                "fr": "Non envoyée",
+                "de": "Nicht senden",
+                "es": "No se envía"
+              }
+            },
+            {
+              "value": "fine",
+              "label": {
+                "en": "Fine",
+                "fr": "Beau temps",
+                "de": "Heiter",
+                "es": "Despejado"
+              }
+            },
+            {
+              "value": "partly_cloudy",
+              "label": {
+                "en": "Partly cloudy",
+                "fr": "Partiellement nuageux",
+                "de": "Teilweise bewölkt",
+                "es": "Parcialmente nublado"
+              }
+            },
+            {
+              "value": "mostly_cloudy",
+              "label": {
+                "en": "Mostly cloudy",
+                "fr": "Plutôt nuageux",
+                "de": "Überwiegend bewölkt",
+                "es": "Mayormente nublado"
+              }
+            },
+            {
+              "value": "cloudy",
+              "label": {
+                "en": "Cloudy",
+                "fr": "Nuageux",
+                "de": "Bewölkt",
+                "es": "Nublado"
+              }
+            },
+            {
+              "value": "showers",
+              "label": {
+                "en": "Showers",
+                "fr": "Averses",
+                "de": "Schauer",
+                "es": "Chubascos"
+              }
+            },
+            {
+              "value": "snow",
+              "label": {
+                "en": "Snow",
+                "fr": "Neige",
+                "de": "Schnee",
+                "es": "Nieve"
+              }
+            },
+            {
+              "value": "hazy",
+              "label": {
+                "en": "Hazy",
+                "fr": "Brumeux",
+                "de": "Dunstig",
+                "es": "Calima"
+              }
+            },
+            {
+              "value": "fog",
+              "label": {
+                "en": "Fog",
+                "fr": "Brouillard",
+                "de": "Nebel",
+                "es": "Niebla"
+              }
+            },
+            {
+              "value": "dusty",
+              "label": {
+                "en": "Dusty",
+                "fr": "Poussiéreux",
+                "de": "Staubig",
+                "es": "Polvo"
+              }
+            },
+            {
+              "value": "frost",
+              "label": {
+                "en": "Frost",
+                "fr": "Gel",
+                "de": "Frost",
+                "es": "Helada"
+              }
+            },
+            {
+              "value": "storm",
+              "label": {
+                "en": "Storm",
+                "fr": "Orage",
+                "de": "Gewitter",
+                "es": "Tormenta"
+              }
+            }
+          ]
+        },
+        {
+          "key": "comment",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Comment",
+            "fr": "Commentaire",
+            "de": "Kommentar",
+            "es": "Comentario"
+          },
+          "description": {
+            "en": "Optional, 200 characters at most.",
+            "fr": "Facultatif, 200 caractères au plus.",
+            "de": "Optional, höchstens 200 Zeichen.",
+            "es": "Opcional, 200 caracteres como máximo."
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "result",
+          "type": "string",
+          "label": {
+            "en": "Result",
+            "fr": "Résultat",
+            "de": "Ergebnis",
+            "es": "Resultado"
+          }
+        },
+        {
+          "key": "date",
+          "type": "string",
+          "label": {
+            "en": "Date sent (YYYY-MM-DD)",
+            "fr": "Date envoyée (AAAA-MM-JJ)",
+            "de": "Gesendetes Datum (JJJJ-MM-TT)",
+            "es": "Fecha enviada (AAAA-MM-DD)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "get_today",
+      "timeout_seconds": 10,
+      "label": {
+        "en": "PVOutput: read the day of a system",
+        "fr": "PVOutput : lire la journée d’un système",
+        "de": "PVOutput: Tag eines Systems lesen",
+        "es": "PVOutput: leer el día de un sistema"
+      },
+      "description": {
+        "en": "The production, export, consumption, peak and yield of today, from the last readings (no request), and a sentence for a message.",
+        "fr": "La production, l’injection, la consommation, le pic et le rendement du jour, d’après les dernières lectures (sans requête), et une phrase pour un message.",
+        "de": "Erzeugung, Einspeisung, Verbrauch, Spitze und Ertrag von heute, aus den letzten Abfragen (ohne Anfrage), und ein Satz für eine Nachricht.",
+        "es": "La producción, exportación, consumo, pico y rendimiento de hoy, según las últimas lecturas (sin petición), y una frase para un mensaje."
+      },
+      "fields": [
+        {
+          "key": "system",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "System",
+            "fr": "Système",
+            "de": "System",
+            "es": "Sistema"
+          },
+          "description": {
+            "en": "A PVOutput device. Leave empty for the first system.",
+            "fr": "Un appareil PVOutput. Laissez vide pour le premier système.",
+            "de": "Ein PVOutput-Gerät. Leer lassen für das erste System.",
+            "es": "Un dispositivo PVOutput. Déjelo vacío para el primer sistema."
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "production_kwh",
+          "type": "number",
+          "label": {
+            "en": "Production today (kWh)",
+            "fr": "Production du jour (kWh)",
+            "de": "Erzeugung heute (kWh)",
+            "es": "Producción de hoy (kWh)"
+          }
+        },
+        {
+          "key": "exported_kwh",
+          "type": "number",
+          "label": {
+            "en": "Exported today (kWh)",
+            "fr": "Injecté aujourd’hui (kWh)",
+            "de": "Heute eingespeist (kWh)",
+            "es": "Exportado hoy (kWh)"
+          }
+        },
+        {
+          "key": "consumed_kwh",
+          "type": "number",
+          "label": {
+            "en": "Consumed today (kWh)",
+            "fr": "Consommé aujourd’hui (kWh)",
+            "de": "Heute verbraucht (kWh)",
+            "es": "Consumido hoy (kWh)"
+          }
+        },
+        {
+          "key": "peak_power_w",
+          "type": "number",
+          "label": {
+            "en": "Peak power (W)",
+            "fr": "Puissance de pic (W)",
+            "de": "Spitzenleistung (W)",
+            "es": "Potencia pico (W)"
+          }
+        },
+        {
+          "key": "peak_time",
+          "type": "string",
+          "label": {
+            "en": "Time of the peak",
+            "fr": "Heure du pic",
+            "de": "Zeit der Spitze",
+            "es": "Hora del pico"
+          }
+        },
+        {
+          "key": "efficiency_kwh_kw",
+          "type": "number",
+          "label": {
+            "en": "Yield (kWh/kW)",
+            "fr": "Rendement (kWh/kWc)",
+            "de": "Ertrag (kWh/kWp)",
+            "es": "Rendimiento (kWh/kWp)"
+          }
+        },
+        {
+          "key": "power_w",
+          "type": "number",
+          "label": {
+            "en": "Power now (W)",
+            "fr": "Puissance actuelle (W)",
+            "de": "Aktuelle Leistung (W)",
+            "es": "Potencia actual (W)"
+          }
+        },
+        {
+          "key": "last_status_time",
+          "type": "string",
+          "label": {
+            "en": "Time of the last status",
+            "fr": "Heure du dernier statut",
+            "de": "Zeit des letzten Status",
+            "es": "Hora del último estado"
+          }
+        },
+        {
+          "key": "minutes_since_status",
+          "type": "number",
+          "label": {
+            "en": "Minutes since the last status",
+            "fr": "Minutes depuis le dernier statut",
+            "de": "Minuten seit dem letzten Status",
+            "es": "Minutos desde el último estado"
+          }
+        },
+        {
+          "key": "system_name",
+          "type": "string",
+          "label": {
+            "en": "System name",
+            "fr": "Nom du système",
+            "de": "Name des Systems",
+            "es": "Nombre del sistema"
+          }
+        },
+        {
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Summary",
+            "fr": "Résumé",
+            "de": "Zusammenfassung",
+            "es": "Resumen"
+          }
+        }
+      ]
+    }
+  ]
+}
