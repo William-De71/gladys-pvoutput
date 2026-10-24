@@ -1,6 +1,6 @@
 {
   "name": "gladys-pvoutput",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "External Gladys Assistant integration for PVOutput (pvoutput.org): one device per solar system, statuses and daily outputs sent from scenes, scene triggers, dashboard widgets.",
   "homepage": "https://github.com/William-De71/gladys-pvoutput",

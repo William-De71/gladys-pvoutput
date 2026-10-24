@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions
 follow [Semantic Versioning](https://semver.org/). This file is generated at
 each release from the Conventional Commits: do not edit it by hand.
 
+## [0.1.1] - 2026-10-24
+
+### Security
+
+- **security:** build the image on Node.js 24.22.1 or later ([0ffa51c](https://github.com/William-De71/gladys-pvoutput/commit/0ffa51cca3042c5f7a72da1fc72cbdc307b86193))
+
 ## [0.1.0] - 2026-10-23
 
 ### Added
@@ -17,4 +23,5 @@ each release from the Conventional Commits: do not edit it by hand.
 - **configuration:** a "Test the connection" button (name, size, status interval, timezone, requests left) and a "Diagnostic" button
 - **i18n:** English, French, German and Spanish for the manifest, the runtime texts, the documentation and the README
 
+[0.1.1]: https://github.com/William-De71/gladys-pvoutput/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/William-De71/gladys-pvoutput/releases/tag/v0.1.0
