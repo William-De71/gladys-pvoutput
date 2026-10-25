@@ -13,7 +13,7 @@ Transport: Cloud. Dein API-Schlüssel, deine System-IDs und die Werte, die deine
 
 ## Voraussetzungen
 
-- Gladys Assistant 5.1.0 oder neuer.
+- Gladys Assistant 5.3.0 oder neuer.
 - Ein (kostenloses) PVOutput-Konto mit aktiviertem API-Zugang.
 - **Der API-Schlüssel**: Öffne auf pvoutput.org **Settings**, stelle **API Access** auf **Enabled**, klicke auf **New Key** und dann auf **Save**. Ein _Nur-Lese-Schlüssel_ (read only key) genügt zum Lesen deiner Systeme; um aus Szenen Status oder Erträge zu senden, braucht es den _Standardschlüssel_.
 - **Die System-ID** jedes Systems: unten auf der Seite Settings, unter **Registered Systems**.

@@ -5,7 +5,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/William-De71/gladys-pvoutput?sort=semver)](https://github.com/William-De71/gladys-pvoutput/releases)
 [![CI](https://img.shields.io/github/actions/workflow/status/William-De71/gladys-pvoutput/release.yml?branch=main&label=CI)](https://github.com/William-De71/gladys-pvoutput/actions/workflows/release.yml)
-[![Gladys](https://img.shields.io/badge/Gladys-%E2%89%A5%205.1.0-2f6fb5)](https://gladysassistant.com)
+[![Gladys](https://img.shields.io/badge/Gladys-%E2%89%A5%205.3.0-2f6fb5)](https://gladysassistant.com)
 
 ![PVOutput for Gladys Assistant](cover.jpg)
 
@@ -109,7 +109,7 @@ Examples:
 
 ## Requirements
 
-- Gladys Assistant **5.1.0** or later (widgets and scenes of integrations): older instances cannot install the integration.
+- Gladys Assistant **5.3.0** or later (widgets and scenes of integrations, the catalog keywords/countries of Gladys 5.3): older instances cannot install the integration.
 - A [PVOutput](https://pvoutput.org) account (free) with **API Access** enabled and its key; the System Id of each system.
 - The internet: the integration talks to `pvoutput.org` only.
 

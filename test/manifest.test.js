@@ -58,8 +58,8 @@ test('declares the cloud transport: pvoutput.org only, never a local device', ()
   assert.doesNotMatch(source('../src/app.js'), /publishTransports|GLADYS_PREFER_LOCAL/);
 });
 
-test('widgets and scenes need Gladys 5.1.0, nothing more; no permission', () => {
-  assert.equal(manifest.gladys_version, '>=5.1.0');
+test('widgets and scenes need 5.1.0, catalog keywords 5.3.0; no permission', () => {
+  assert.equal(manifest.gladys_version, '>=5.3.0');
   assert.deepEqual(manifest.categories, ['energy']);
   const text = JSON.stringify(manifest);
   assert.doesNotMatch(text, /"source":"houses"/, 'houses need 5.2.0');
@@ -70,8 +70,6 @@ test('widgets and scenes need Gladys 5.1.0, nothing more; no permission', () => 
     'network_discovery',
     'webhooks',
     'messaging',
-    'keywords',
-    'countries',
   ]) {
     assert.equal(manifest[key], undefined, key);
   }
@@ -198,4 +196,17 @@ test('offers the languages of the code, automatic by default', () => {
   const field = byKey(manifest.config_schema).get('language');
   assert.deepEqual(values(field), [AUTO_LANGUAGE, ...LANGUAGES]);
   assert.equal(field.default, AUTO_LANGUAGE);
+});
+
+test('catalog search terms of Gladys 5.3.0: keywords within bounds, countries', () => {
+  assert.ok(Array.isArray(manifest.keywords));
+  assert.ok(manifest.keywords.length >= 1 && manifest.keywords.length <= 10);
+  const normalized = manifest.keywords.map((keyword) => keyword.trim().toLowerCase());
+  for (const keyword of normalized) {
+    assert.ok(keyword.length >= 2 && keyword.length <= 30, keyword);
+  }
+  assert.equal(new Set(normalized).size, normalized.length, 'keywords must be unique');
+  assert.ok(!normalized.includes(manifest.name.toLowerCase()), 'the name is already searched');
+  // Usable worldwide: no `countries` restriction.
+  assert.equal(manifest.countries, undefined);
 });

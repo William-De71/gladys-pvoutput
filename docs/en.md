@@ -13,7 +13,7 @@ Transport: cloud. Your API key, your System Ids and the values your scenes send 
 
 ## Prerequisites
 
-- Gladys Assistant 5.1.0 or later.
+- Gladys Assistant 5.3.0 or later.
 - A PVOutput account (free) with API access enabled.
 - **The API key**: on pvoutput.org, open **Settings**, set **API Access** to **Enabled**, click **New Key**, then **Save**. A _read only key_ is enough to read your systems; sending statuses or outputs from scenes needs the _standard key_.
 - **The System Id** of each system: at the bottom of the Settings page, under **Registered Systems**.

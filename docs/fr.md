@@ -13,7 +13,7 @@ Transport : cloud. Votre clé d’API, vos System Id et les valeurs envoyées pa
 
 ## Prérequis
 
-- Gladys Assistant 5.1.0 ou plus récent.
+- Gladys Assistant 5.3.0 ou plus récent.
 - Un compte PVOutput (gratuit) avec l’accès à l’API activé.
 - **La clé d’API** : sur pvoutput.org, ouvrez **Settings**, passez **API Access** sur **Enabled**, cliquez sur **New Key**, puis **Save**. Une _clé en lecture seule_ (read only key) suffit pour lire vos systèmes ; envoyer des statuts ou des productions depuis les scènes demande la _clé standard_.
 - **Le System Id** de chaque système : en bas de la page Settings, sous **Registered Systems**.

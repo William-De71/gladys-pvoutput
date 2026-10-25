@@ -13,7 +13,7 @@ Transporte: nube. Su clave de API, sus System Id y los valores que envían sus e
 
 ## Requisitos previos
 
-- Gladys Assistant 5.1.0 o posterior.
+- Gladys Assistant 5.3.0 o posterior.
 - Una cuenta PVOutput (gratuita) con el acceso a la API activado.
 - **La clave de API**: en pvoutput.org, abra **Settings**, ponga **API Access** en **Enabled**, pulse **New Key** y luego **Save**. Una _clave de solo lectura_ (read only key) basta para leer sus sistemas; enviar estados o producciones desde las escenas requiere la _clave estándar_.
 - **El System Id** de cada sistema: al final de la página Settings, en **Registered Systems**.
